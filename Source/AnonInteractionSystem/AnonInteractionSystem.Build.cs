@@ -25,7 +25,7 @@ public class AnonInteractionSystem : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
+				"Core", "GameplayAbilities",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -36,8 +36,7 @@ public class AnonInteractionSystem : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
-				"Slate",
-				"SlateCore",
+				"GameplayTags"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
