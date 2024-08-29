@@ -2,6 +2,8 @@
 
 #include "InventoryComponent.h"
 
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemInterface.h"
 #include "BaseItem.h"
 
 UInventoryComponent::UInventoryComponent()
@@ -41,7 +43,7 @@ void UInventoryComponent::AddItem(ABaseItem* NewItem)
 			AddItemCount(ItemData->ItemType, I);
 			
 			// Delegate
-			OnItemAdded.Broadcast(ItemData->ItemName, ItemData->ItemIcon);
+			OnItemChanged.Broadcast(ItemData->ItemName, ItemData->ItemIcon);
 			
 			return;
 		}
@@ -52,7 +54,7 @@ void UInventoryComponent::AddItem(ABaseItem* NewItem)
 	Items[ItemData->ItemType].ItemCount.Add(1);
 
 	// Delegate
-	OnItemAdded.Broadcast(ItemData->ItemName, ItemData->ItemIcon);
+	OnItemChanged.Broadcast(ItemData->ItemName, ItemData->ItemIcon);
 }
 
 int32 UInventoryComponent::ItemIsExists(const FName& ItemName)
@@ -69,4 +71,40 @@ int32 UInventoryComponent::ItemIsExists(const FName& ItemName)
 	}
 	
 	return -1;
+}
+
+void UInventoryComponent::UseItem()
+{
+	TArray<UItemData*> ItemData = GetItemsAtType(CurrentType);
+
+	if (ItemData.IsEmpty()) return;
+	
+	int32 Amount = GetItemCountItems(CurrentType, CurrentItem);
+	
+	if (Amount <= 0) return;
+
+	TSubclassOf<UGameplayEffect> Effect = ItemData[CurrentItem]->EffectClass;
+
+	// Apply
+	if (IAbilitySystemInterface* AS = Cast<IAbilitySystemInterface>(GetOwner()))
+	{
+		UAbilitySystemComponent* ASC = AS->GetAbilitySystemComponent();
+
+		FGameplayEffectContextHandle CtxHandle = ASC->MakeEffectContext();
+		CtxHandle.AddSourceObject(this);
+
+		FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(Effect, 1.f, CtxHandle);
+		ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+	}
+
+	// Decrease the amount
+	--Items[CurrentType].ItemCount[CurrentItem];
+	
+	if (GetItemCountItems(CurrentType, CurrentItem) <= 0)
+	{
+		Items[CurrentType].Data.RemoveAt(CurrentItem);
+		Items[CurrentType].ItemCount.RemoveAt(CurrentItem);
+	}
+	
+	OnItemChanged.Broadcast(NAME_None, nullptr);
 }

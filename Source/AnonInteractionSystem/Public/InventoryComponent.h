@@ -8,7 +8,7 @@
 #include "InventoryComponent.generated.h"
 
 class ABaseItem;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnItemAddedSignature, FName, ItemName, UTexture2D*, ItemIcon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnItemChangedSignature, FName, ItemName, UTexture2D*, ItemIcon);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ANONINTERACTIONSYSTEM_API UInventoryComponent : public UActorComponent
@@ -25,7 +25,7 @@ public:
 	// ==================== Delegates ==================== //
 
 	UPROPERTY(BlueprintAssignable)
-	FOnItemAddedSignature OnItemAdded;
+	FOnItemChangedSignature OnItemChanged;
 
 protected:
 	// ==================== Items ==================== //
@@ -45,6 +45,12 @@ protected:
 		return Items.Find(Type)->ItemCount[Idx];
 	}
 
+	UPROPERTY(BlueprintReadWrite)
+	EItemType CurrentType = EItemType::AttackBoost;
+	
+	UPROPERTY(BlueprintReadWrite)
+	int32 CurrentItem = 0;
+
 	/** Max Capacity for each item. REMEMBER! EACH ITEM.
 	 * NOTE: In the future, maybe we can add "Slot/Bag" system so the capacity will be increased
 	 */
@@ -62,4 +68,6 @@ public:
 
 	/** If exists, returns the amount. If not, return -1 */
 	int32 ItemIsExists(const FName& ItemName);
+
+	void UseItem();
 };
