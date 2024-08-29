@@ -2,6 +2,8 @@
 
 #include "InventoryComponent.h"
 
+#include "BaseItem.h"
+
 UInventoryComponent::UInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -21,31 +23,35 @@ void UInventoryComponent::BeginPlay()
 
 }
 
-void UInventoryComponent::AddItem(UItemData* NewItem)
+void UInventoryComponent::AddItem(ABaseItem* NewItem)
 {
+	// Get Item Data then destroy the actor 
+	UItemData* ItemData = NewItem->GetItemData();
+	NewItem->Destroy();
+	
 	// Get the data
-	TArray<UItemData*>& ItemsData = GetItemsAtType(NewItem->ItemType);
+	TArray<UItemData*>& OwnedItemsAtType = GetItemsAtType(ItemData->ItemType);
 
 	// Check is the item already exists
-	for (const auto& Item : ItemsData)
+	for (const auto& Item : OwnedItemsAtType)
 	{
 		// Already exists and less than capacity, then just add the item count
-		if (Item->ItemName == NewItem->ItemName && Item->ItemCount < MaxCapacity)
+		if (Item->ItemName == ItemData->ItemName && Item->ItemCount < MaxCapacity)
 		{
 			++Item->ItemCount;
 			
 			// Delegate
-			OnItemAdded.Broadcast(NewItem->ItemName, NewItem->ItemIcon);
+			OnItemAdded.Broadcast(ItemData->ItemName, ItemData->ItemIcon);
 			
 			return;
 		}
 	}
 
 	// Item is not existsed yet, then just add
-	ItemsData.Add(NewItem);
+	OwnedItemsAtType.Add(ItemData);
 
 	// Delegate
-	OnItemAdded.Broadcast(NewItem->ItemName, NewItem->ItemIcon);
+	OnItemAdded.Broadcast(ItemData->ItemName, ItemData->ItemIcon);
 }
 
 int32 UInventoryComponent::ItemIsExists(const FName& ItemName)

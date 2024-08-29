@@ -7,6 +7,7 @@
 #include "Components/ActorComponent.h"
 #include "InventoryComponent.generated.h"
 
+class ABaseItem;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnItemAddedSignature, FName, ItemName, UTexture2D*, ItemIcon);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -23,6 +24,7 @@ public:
 
 	// ==================== Delegates ==================== //
 
+	UPROPERTY(BlueprintAssignable)
 	FOnItemAddedSignature OnItemAdded;
 
 protected:
@@ -42,8 +44,9 @@ protected:
 	int32 MaxCapacity = 2;
 	
 public:
-	
-	void AddItem(UItemData* NewItem);
+
+	UFUNCTION(BlueprintCallable)
+	void AddItem(ABaseItem* NewItem);
 
 	/** If exists, returns the amount. If not, return -1 */
 	int32 ItemIsExists(const FName& ItemName);
