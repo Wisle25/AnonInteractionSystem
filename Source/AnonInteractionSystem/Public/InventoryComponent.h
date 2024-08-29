@@ -54,7 +54,7 @@ protected:
 	/** Max Capacity for each item. REMEMBER! EACH ITEM.
 	 * NOTE: In the future, maybe we can add "Slot/Bag" system so the capacity will be increased
 	 */
-	int32 MaxCapacity = 2;
+	int32 MaxCapacity = 20;
 
 	FORCEINLINE void AddItemCount(EItemType Type, int32 Idx)
 	{
