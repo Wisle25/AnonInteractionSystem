@@ -33,6 +33,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TMap<EItemType, FItemHandle> Items;
 
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE TArray<UItemData*>& GetItemsAtType(EItemType Type)
 	{
 		return Items.Find(Type)->Data;
