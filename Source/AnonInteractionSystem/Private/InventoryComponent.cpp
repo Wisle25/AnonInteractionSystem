@@ -30,15 +30,15 @@ void UInventoryComponent::AddItem(ABaseItem* NewItem)
 	NewItem->Destroy();
 	
 	// Get the data
-	TArray<UItemData*>& OwnedItemsAtType = GetItemsAtType(ItemData->ItemType);
+	TArray<UItemData*>& Data = GetItemsAtType(ItemData->ItemType);
 
 	// Check is the item already exists
-	for (const auto& Item : OwnedItemsAtType)
+	for (int32 I = 0; I < Data.Num(); ++I)
 	{
 		// Already exists and less than capacity, then just add the item count
-		if (Item->ItemName == ItemData->ItemName && Item->ItemCount < MaxCapacity)
+		if (Data[I]->ItemName == ItemData->ItemName && GetItemCountItems(ItemData->ItemType, I) < MaxCapacity)
 		{
-			++Item->ItemCount;
+			AddItemCount(ItemData->ItemType, I);
 			
 			// Delegate
 			OnItemAdded.Broadcast(ItemData->ItemName, ItemData->ItemIcon);
@@ -48,7 +48,8 @@ void UInventoryComponent::AddItem(ABaseItem* NewItem)
 	}
 
 	// Item is not existsed yet, then just add
-	OwnedItemsAtType.Add(ItemData);
+	Data.Add(ItemData);
+	Items[ItemData->ItemType].ItemCount.Add(1);
 
 	// Delegate
 	OnItemAdded.Broadcast(ItemData->ItemName, ItemData->ItemIcon);
@@ -60,10 +61,10 @@ int32 UInventoryComponent::ItemIsExists(const FName& ItemName)
 	{
 		TArray<UItemData*> ItemData = Item.Value.Data;
 
-		for (const auto& Data : ItemData)
+		for (int32 I = 0; I < ItemData.Num(); ++I)
 		{
-			if (Data->ItemName == ItemName)
-				return Data->ItemCount;
+			if (ItemData[I]->ItemName == ItemName)
+				return GetItemCountItems(ItemData[I]->ItemType, I);
 		}
 	}
 	

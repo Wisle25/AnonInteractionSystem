@@ -38,10 +38,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UTexture2D> ItemIcon;
-
-	// How many item is being carried, Once the item is already exists in the inventory, just add this ItemCount
-	UPROPERTY(BlueprintReadOnly)
-	int32 ItemCount = 1;
 };
 
 USTRUCT(BlueprintType)
@@ -51,4 +47,8 @@ struct FItemHandle
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<UItemData*> Data;
+
+	// How many item is being carried, Once the item is already exists in the inventory, just add this ItemCount
+	UPROPERTY(BlueprintReadOnly)
+	TArray<int32> ItemCount;
 };
